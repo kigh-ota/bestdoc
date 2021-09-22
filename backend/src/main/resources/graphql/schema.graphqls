@@ -1,0 +1,18 @@
+#scalar Date
+
+type Note {
+    id: ID!
+    title: String!
+    text: String!
+#    createdAt: Date!
+#    updatedAt: Date!
+}
+
+type Query {
+    allNotes: [Note!]!
+    getNote(id: ID!): Note!
+}
+
+schema {
+    query: Query
+}
