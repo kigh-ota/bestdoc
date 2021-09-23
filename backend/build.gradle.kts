@@ -33,7 +33,7 @@ dependencies {
 }
 
 springBoot {
-    mainClass.set("com.kaiichiro.bestdoc.BestDocApplication")
+    mainClass.set("com.kaiichiro.bestdoc.MainKt")
 }
 
 tasks.withType<KotlinCompile> {
