@@ -1,5 +1,11 @@
 package com.kaiichiro.bestdoc
 
+import com.google.api.core.ApiFuture
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.auth.oauth2.ServiceAccountCredentials
+import com.google.cloud.ServiceOptions
+import com.google.cloud.firestore.FirestoreOptions
+import com.google.cloud.firestore.WriteResult
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Configuration
@@ -15,6 +21,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.stereotype.Controller
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import javax.persistence.Entity
@@ -36,6 +45,29 @@ fun main(args: Array<String>) {
     noteRepository.save(Note(null, "Title1", "Text1", now, now))
     noteRepository.save(Note(null, "Title2", "Text2", now, now))
     noteRepository.save(Note(null, "Empty", "", now, now))
+
+    val path = Path.of(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
+    Files.deleteIfExists(path)
+    Files.createFile(path);
+    Files.writeString(path, System.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"), StandardOpenOption.WRITE)
+    val firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder().setProjectId(
+        ServiceOptions.getDefaultProjectId()
+    )
+        .setCredentials(GoogleCredentials.getApplicationDefault())
+        .build()
+    firestoreOptions.service.use { db ->
+        val docRef = db.collection("users").document("alovelace")
+// Add document data  with id "alovelace" using a hashmap
+        val data: MutableMap<String, Any> = HashMap()
+        data["first"] = "Ada"
+        data["last"] = "Lovelace"
+        data["born"] = 1815
+//asynchronously write data
+        val result: ApiFuture<WriteResult> = docRef.set(data)
+// ...
+// result.get() blocks on response
+        System.out.println("Update time : " + result.get().getUpdateTime())
+    }
 }
 
 @Entity
