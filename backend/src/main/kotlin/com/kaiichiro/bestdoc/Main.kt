@@ -10,6 +10,7 @@ import org.springframework.graphql.data.method.annotation.QueryMapping
 import org.springframework.graphql.data.method.annotation.SchemaMapping
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.stereotype.Controller
@@ -63,9 +64,11 @@ class NoteController(private val noteRepository: NoteRepository) {
     }
 }
 
+@EnableWebSecurity
 @Configuration
 class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
+        http.csrf().disable()
         http.requiresChannel()
             .requestMatchers(RequestMatcher { r: HttpServletRequest ->
                 r.getHeader(
@@ -73,6 +76,6 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 ) != null
             })
             .requiresSecure()
-        http.authorizeRequests().anyRequest().authenticated().and().formLogin().and().httpBasic()
+        http.authorizeRequests().anyRequest().authenticated().and().formLogin()
     }
 }
