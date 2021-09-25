@@ -34,8 +34,10 @@
   box-sizing: border-box;
 }
 
-#note-input {
+textarea#note-input {
   flex: 1;
+  resize: none;
+  font-family: Courier;
 }
 
 #note-preview-container {
@@ -44,4 +46,17 @@
   height: 100%;
   padding: 5px;
   box-sizing: border-box;
+}
+
+#note-list {
+  list-style: none;
+}
+
+.note-list-item {
+  cursor: pointer;
+  user-select: none;
+}
+
+.note-list-item.selected {
+  background-color: blue;
 }
