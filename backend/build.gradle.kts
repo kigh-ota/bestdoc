@@ -19,9 +19,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
-    implementation("com.h2database:h2")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.experimental:graphql-spring-boot-starter:1.0.0-M2")
     implementation("org.springframework.boot:spring-boot-starter-security")

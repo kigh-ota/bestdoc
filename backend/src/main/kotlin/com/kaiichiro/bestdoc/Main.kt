@@ -1,85 +1,119 @@
 package com.kaiichiro.bestdoc
 
-import com.google.api.core.ApiFuture
 import com.google.auth.oauth2.GoogleCredentials
-import com.google.auth.oauth2.ServiceAccountCredentials
 import com.google.cloud.ServiceOptions
+import com.google.cloud.firestore.Firestore
 import com.google.cloud.firestore.FirestoreOptions
-import com.google.cloud.firestore.WriteResult
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
-import org.springframework.data.repository.CrudRepository
+import org.springframework.context.annotation.Profile
 import org.springframework.graphql.data.method.annotation.Argument
+import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
 import org.springframework.graphql.data.method.annotation.SchemaMapping
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.web.util.matcher.RequestMatcher
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
-import org.springframework.transaction.annotation.EnableTransactionManagement
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.temporal.ChronoField.*
+import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 
 @SpringBootApplication
-@EnableTransactionManagement
-@EnableJpaRepositories("com.kaiichiro.bestdoc")
-class BestDocApplication(private val jdbcTemplate: JdbcTemplate)
+class BestDocApplication {
 
-fun main(args: Array<String>) {
-    val context = runApplication<BestDocApplication>(*args)
-    val noteRepository = context.beanFactory.getBean(NoteRepository::class.java)
-    val now = OffsetDateTime.now(ZoneOffset.UTC)
-    noteRepository.save(Note(null, "Title1", "Text1", now, now))
-    noteRepository.save(Note(null, "Title2", "Text2", now, now))
-    noteRepository.save(Note(null, "Empty", "", now, now))
-
-    val path = Path.of(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
-    Files.deleteIfExists(path)
-    Files.createFile(path);
-    Files.writeString(path, System.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"), StandardOpenOption.WRITE)
-    val firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder().setProjectId(
-        ServiceOptions.getDefaultProjectId()
-    )
-        .setCredentials(GoogleCredentials.getApplicationDefault())
-        .build()
-    firestoreOptions.service.use { db ->
-        val docRef = db.collection("users").document("alovelace")
-// Add document data  with id "alovelace" using a hashmap
-        val data: MutableMap<String, Any> = HashMap()
-        data["first"] = "Ada"
-        data["last"] = "Lovelace"
-        data["born"] = 1815
-//asynchronously write data
-        val result: ApiFuture<WriteResult> = docRef.set(data)
-// ...
-// result.get() blocks on response
-        System.out.println("Update time : " + result.get().getUpdateTime())
+    @Bean
+    fun firestore(): Firestore {
+        val path = Path.of(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
+        Files.deleteIfExists(path)
+        Files.createFile(path);
+        Files.writeString(
+            path,
+            System.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"),
+            StandardOpenOption.WRITE
+        )
+        val firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder().setProjectId(
+            ServiceOptions.getDefaultProjectId()
+        )
+            .setCredentials(GoogleCredentials.getApplicationDefault())
+            .build()
+        return firestoreOptions.service
     }
 }
 
-@Entity
+fun main(args: Array<String>) {
+    runApplication<BestDocApplication>(*args)
+}
+
 class Note(
-    @Id @GeneratedValue(strategy = GenerationType.AUTO) val id: Long?,
+    val id: String?,
     val title: String,
     val text: String,
     val createdAt: OffsetDateTime,
-    val updatedAt: OffsetDateTime
-)
+    val updatedAt: OffsetDateTime,
+) {
+    companion object {
+        fun new(title: String, text: String): Note {
+            val now = OffsetDateTime.now(ZoneOffset.UTC)
+            return Note(null, title, text, now, now)
+        }
+    }
+}
 
-interface NoteRepository : CrudRepository<Note, Long>
+interface NoteRepository {
+    fun findAll(): List<Note>
+    fun findById(id: Long): Optional<Note>
+    fun save(note: Note): String
+}
+
+@Component
+class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
+    companion object {
+        private const val COLLECTION = "notes"
+        private val FORMATTER = DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ISO_LOCAL_DATE)
+            .appendLiteral('T')
+            .appendValue(HOUR_OF_DAY, 2)
+            .appendLiteral(':')
+            .appendValue(MINUTE_OF_HOUR, 2)
+            .appendLiteral(':')
+            .appendValue(SECOND_OF_MINUTE, 2)
+            .appendOffsetId()
+            .toFormatter()
+    }
+
+    override fun findAll(): List<Note> {
+        return listOf() // TODO
+    }
+
+    override fun findById(id: Long): Optional<Note> {
+        return Optional.empty() // TODO
+    }
+
+    override fun save(note: Note): String {
+        val result = db.collection(COLLECTION).add(object {
+            val title = note.title
+            val text = note.text
+            val createdAt = note.createdAt.format(FORMATTER)
+            val updatedAt = note.updatedAt.format(FORMATTER)
+        })
+        val id = result.get().id
+        System.out.println("id : " + id)
+        return id
+    }
+}
 
 @Controller
 @SchemaMapping(typeName = "Note")
@@ -94,11 +128,17 @@ class NoteController(private val noteRepository: NoteRepository) {
     fun getNote(@Argument id: Long): Note {
         return noteRepository.findById(id).orElseThrow { RuntimeException() }
     }
+
+    @MutationMapping
+    fun addNote(@Argument title: String, @Argument text: String): String {
+        return noteRepository.save(Note.new(title, text))
+    }
 }
 
 @EnableWebSecurity
 @Configuration
-class WebSecurityConfig : WebSecurityConfigurerAdapter() {
+@Profile("production")
+class ProductionWebSecurityConfig : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
         http.requiresChannel()
@@ -109,5 +149,15 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
             })
             .requiresSecure()
         http.authorizeRequests().anyRequest().authenticated().and().formLogin()
+    }
+}
+
+@EnableWebSecurity
+@Configuration
+@Profile("dev")
+class DevWebSecurityConfig : WebSecurityConfigurerAdapter() {
+    override fun configure(http: HttpSecurity) {
+        http.csrf().disable()
+        http.authorizeRequests().anyRequest().permitAll()
     }
 }

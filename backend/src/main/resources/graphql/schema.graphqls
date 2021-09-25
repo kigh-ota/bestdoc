@@ -13,6 +13,11 @@ type Query {
     getNote(id: ID!): Note!
 }
 
+type Mutation {
+    addNote(title: String!, text: String!): String!
+}
+
 schema {
     query: Query
+    mutation: Mutation
 }
