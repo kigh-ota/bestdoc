@@ -4,14 +4,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
-import org.springframework.graphql.data.method.annotation.Argument
-import org.springframework.graphql.data.method.annotation.MutationMapping
-import org.springframework.graphql.data.method.annotation.QueryMapping
-import org.springframework.graphql.data.method.annotation.SchemaMapping
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.stereotype.Controller
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -24,7 +19,7 @@ fun main(args: Array<String>) {
 }
 
 class Note(
-    val id: String?,
+    val id: NoteId?,
     val title: String,
     val text: String,
     val createdAt: OffsetDateTime,
@@ -44,26 +39,6 @@ interface NoteRepository {
     fun findAll(): Iterable<Note>
     fun findById(id: NoteId): Note
     fun save(note: Note): NoteId
-}
-
-@Controller
-@SchemaMapping(typeName = "Note")
-class NoteController(private val noteRepository: NoteRepository) {
-
-    @QueryMapping
-    fun allNotes(): Iterable<Note> {
-        return noteRepository.findAll()
-    }
-
-    @QueryMapping
-    fun getNote(@Argument id: NoteId): Note {
-        return noteRepository.findById(id)
-    }
-
-    @MutationMapping
-    fun addNote(@Argument title: String, @Argument text: String): String {
-        return noteRepository.save(Note.new(title, text))
-    }
 }
 
 @EnableWebSecurity

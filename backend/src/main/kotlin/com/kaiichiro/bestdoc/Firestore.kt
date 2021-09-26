@@ -41,7 +41,7 @@ class FirestoreConfiguration {
 class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
     companion object {
         private const val COLLECTION = "notes"
-        private val FORMATTER = DateTimeFormatterBuilder()
+        private val DATE_TIME_FORMATTER = DateTimeFormatterBuilder()
             .append(DateTimeFormatter.ISO_LOCAL_DATE)
             .appendLiteral('T')
             .appendValue(ChronoField.HOUR_OF_DAY, 2)
@@ -72,8 +72,8 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
             doc.id,
             doc.get("title") as String,
             doc.get("text") as String,
-            OffsetDateTime.parse(doc.get("createdAt") as String, FORMATTER),
-            OffsetDateTime.parse(doc.get("updatedAt") as String, FORMATTER)
+            OffsetDateTime.parse(doc.get("createdAt") as String, DATE_TIME_FORMATTER),
+            OffsetDateTime.parse(doc.get("updatedAt") as String, DATE_TIME_FORMATTER)
         )
     }
 
@@ -81,8 +81,8 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
         val result = db.collection(COLLECTION).add(object {
             val title = note.title
             val text = note.text
-            val createdAt = note.createdAt.format(FORMATTER)
-            val updatedAt = note.updatedAt.format(FORMATTER)
+            val createdAt = note.createdAt.format(DATE_TIME_FORMATTER)
+            val updatedAt = note.updatedAt.format(DATE_TIME_FORMATTER)
         })
         val id = result.get().id
         System.out.println("id : " + id)
