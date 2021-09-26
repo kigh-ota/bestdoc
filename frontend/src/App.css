@@ -34,7 +34,7 @@
   box-sizing: border-box;
 }
 
-textarea#note-input {
+#note-input {
   flex: 1;
   resize: none;
   font-family: Courier;
