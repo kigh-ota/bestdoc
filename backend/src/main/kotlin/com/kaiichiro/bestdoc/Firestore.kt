@@ -55,16 +55,16 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
 
     override fun findAll(): Iterable<Note> {
         val query = db.collection(COLLECTION).get()
-        return query.get().documents.map(::transform)
+        return query.get().documents.map(::docToNote)
     }
 
     override fun findById(id: NoteId): Note {
         val docRef = db.collection(COLLECTION).document(id)
         val doc = docRef.get().get()
-        return transform(doc)
+        return docToNote(doc)
     }
 
-    private fun transform(doc: DocumentSnapshot): Note {
+    private fun docToNote(doc: DocumentSnapshot): Note {
         if (doc.data == null) {
             throw RuntimeException()
         }
@@ -78,14 +78,38 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
     }
 
     override fun save(note: Note): NoteId {
-        val result = db.collection(COLLECTION).add(object {
-            val title = note.title
-            val text = note.text
-            val createdAt = note.createdAt.format(DATE_TIME_FORMATTER)
-            val updatedAt = note.updatedAt.format(DATE_TIME_FORMATTER)
-        })
+        return when (note.id) {
+            null -> add(note)
+            else -> {
+                update(note)
+                return note.id
+            }
+        }
+    }
+
+    private fun add(note: Note): NoteId {
+        val result = db.collection(COLLECTION).add(
+            mapOf(
+                Pair("title", note.title),
+                Pair("text", note.text),
+                Pair("createdAt", note.createdAt.format(DATE_TIME_FORMATTER)),
+                Pair("updatedAt", note.updatedAt.format(DATE_TIME_FORMATTER)),
+            )
+        )
         val id = result.get().id
         System.out.println("id : " + id)
         return id
+    }
+
+    private fun update(note: Note) {
+        val docRef = db.collection(COLLECTION).document(note.id!!)
+        val future = docRef.update(
+            mapOf(
+                Pair("title", note.title),
+                Pair("text", note.text),
+                Pair("updatedAt", note.updatedAt.format(DATE_TIME_FORMATTER))
+            )
+        )
+        System.out.println("update time : " + future.get().updateTime)
     }
 }

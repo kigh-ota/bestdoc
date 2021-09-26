@@ -25,7 +25,12 @@ class NoteController(private val noteRepository: NoteRepository) {
 
     @MutationMapping
     fun addNote(@Argument title: String, @Argument text: String): NoteId {
-        return noteRepository.save(Note.new(title, text))
+        return noteRepository.save(Note.new(null, title, text))
+    }
+
+    @MutationMapping
+    fun updateNote(@Argument id: NoteId, @Argument title: String, @Argument text: String): NoteId {
+        return noteRepository.save(Note.new(id, title, text))
     }
 }
 

@@ -26,9 +26,9 @@ class Note(
     val updatedAt: OffsetDateTime,
 ) {
     companion object {
-        fun new(title: String, text: String): Note {
+        fun new(id: NoteId?, title: String, text: String): Note {
             val now = OffsetDateTime.now(ZoneOffset.UTC)
-            return Note(null, title, text, now, now)
+            return Note(id, title, text, now, now)
         }
     }
 }
