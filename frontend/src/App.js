@@ -51,6 +51,14 @@ export function App() {
       });
   }, []);
 
+  function updateTitle(title) {
+    if (selectedId === null) {
+      return; // fail safe
+    }
+    const note = notes[selectedId];
+    setNotes({ ...notes, [selectedId]: { ...note, title } });
+  }
+
   function updateEditorText(text) {
     if (selectedId === null) {
       return; // fail safe
@@ -68,9 +76,14 @@ export function App() {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        query: `mutation { updateNote(id:"${selectedId}", title:"${note.title}", text:"""${note.text}""") }`,
+        query: `mutation { updateNote(id:"${selectedId}", title:"${note.title}", text:"""${note.text}""") { id, title, text, createdAt, updatedAt } }`,
       }),
-    }).then(getNoteAndUpdateState(selectedId));
+    }).then((r) => r.json())
+    .then((data) => {
+      console.log("data returned:", data);
+      const note = data.data.updateNote;
+      setNotes({ ...notes, [note.id]: note });
+    })
   }
 
   return (
@@ -97,6 +110,7 @@ export function App() {
             id="note-title-input"
             type="text"
             value={selectedId ? notes[selectedId].title : ""}
+            onChange={(e) => updateTitle(e.target.value)}
             disabled={selectedId === null}
             placeholder="Title"
           />

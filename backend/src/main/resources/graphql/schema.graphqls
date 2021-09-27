@@ -12,8 +12,8 @@ type Query {
 }
 
 type Mutation {
-    addNote(title: String!, text: String!): ID!
-    updateNote(id: ID!, title: String!, text: String!): ID!
+    addNote(title: String!, text: String!): Note!
+    updateNote(id: ID!, title: String!, text: String!): Note!
 }
 
 schema {

@@ -38,7 +38,7 @@ typealias NoteId = String
 interface NoteRepository {
     fun findAll(): Iterable<Note>
     fun findById(id: NoteId): Note
-    fun save(note: Note): NoteId
+    fun save(note: Note): Note
 }
 
 @EnableWebSecurity

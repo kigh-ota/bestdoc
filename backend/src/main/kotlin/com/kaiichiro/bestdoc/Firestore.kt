@@ -77,17 +77,14 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
         )
     }
 
-    override fun save(note: Note): NoteId {
+    override fun save(note: Note): Note {
         return when (note.id) {
             null -> add(note)
-            else -> {
-                update(note)
-                return note.id
-            }
+            else -> update(note)
         }
     }
 
-    private fun add(note: Note): NoteId {
+    private fun add(note: Note): Note {
         val result = db.collection(COLLECTION).add(
             mapOf(
                 Pair("title", note.title),
@@ -96,12 +93,12 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
                 Pair("updatedAt", note.updatedAt.format(DATE_TIME_FORMATTER)),
             )
         )
-        val id = result.get().id
-        System.out.println("id : " + id)
-        return id
+        val docRef = result.get()
+        val doc = docRef.get().get()
+        return docToNote(doc)
     }
 
-    private fun update(note: Note) {
+    private fun update(note: Note): Note {
         val docRef = db.collection(COLLECTION).document(note.id!!)
         val future = docRef.update(
             mapOf(
@@ -111,5 +108,6 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
             )
         )
         System.out.println("update time : " + future.get().updateTime)
+        return findById(note.id)
     }
 }
