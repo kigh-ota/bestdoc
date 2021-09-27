@@ -68,18 +68,20 @@ export function App() {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        query: `mutation { updateNote(id:"${selectedId}", title:"${note.title}", text:"${note.text}") }`,
+        query: `mutation { updateNote(id:"${selectedId}", title:"${note.title}", text:"""${note.text}""") }`,
       }),
-    }).then(getNoteAndUpdateState(selectedId))
+    }).then(getNoteAndUpdateState(selectedId));
   }
 
   return (
     <div id="App">
       <div class="containers">
         <div id="drawer">
-          <div>
+          <div id="drawer-toolbar">
             <button>New</button>
-            <button onClick={save}>Save</button>
+            <button onClick={save} disabled={selectedId === null}>
+              Save
+            </button>
           </div>
           <NoteList
             notes={notes}
@@ -91,25 +93,22 @@ export function App() {
           />
         </div>
         <div id="content">
-          <div id="note-input-container">
-            <div>
-              <input
-                id="note-title-input"
-                type="text"
-                value={selectedId ? notes[selectedId].title : ""}
-                disabled={selectedId === null}
-              />
-              <textarea
-                id="note-input"
-                onChange={(e) => updateEditorText(e.target.value)}
-                value={selectedId ? notes[selectedId].text : ""}
-                disabled={selectedId === null}
-              />
-            </div>
-          </div>
-          <div id="note-preview-container">
+          <input
+            id="note-title-input"
+            type="text"
+            value={selectedId ? notes[selectedId].title : ""}
+            disabled={selectedId === null}
+            placeholder="Title"
+          />
+          <div id="note-text-container">
+            <textarea
+              id="note-text-input"
+              onChange={(e) => updateEditorText(e.target.value)}
+              value={selectedId ? notes[selectedId].text : ""}
+              disabled={selectedId === null}
+            />
             <div
-              id="preview"
+              id="note-text-preview"
               dangerouslySetInnerHTML={{
                 __html: marked(selectedId ? notes[selectedId].text : ""),
               }}
@@ -124,30 +123,31 @@ export function App() {
 function NoteList({ notes, onSelect, selectedId }) {
   return (
     <ul id="note-list">
-      {Object.values(notes).sort((a,b) => {
-        if (a.updatedAt < b.updatedAt) {
-          return 1;
-        }
-        if (a.updatedAt > b.updatedAt) {
-          return -1;
-        }
-        return 0;
-      })
-      .map((note) => {
-        const selected = note.id === selectedId;
-        const className = selected
-          ? "note-list-item selected"
-          : "note-list-item";
-        return (
-          <li
-            key={note.id}
-            class={className}
-            onClick={(e) => onSelect(note.id)}
-          >
-            {note.title}
-          </li>
-        );
-      })}
+      {Object.values(notes)
+        .sort((a, b) => {
+          if (a.updatedAt < b.updatedAt) {
+            return 1;
+          }
+          if (a.updatedAt > b.updatedAt) {
+            return -1;
+          }
+          return 0;
+        })
+        .map((note) => {
+          const selected = note.id === selectedId;
+          const className = selected
+            ? "note-list-item selected"
+            : "note-list-item";
+          return (
+            <li
+              key={note.id}
+              class={className}
+              onClick={(e) => onSelect(note.id)}
+            >
+              {note.title}
+            </li>
+          );
+        })}
     </ul>
   );
 }

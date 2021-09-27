@@ -1,5 +1,22 @@
+html {
+  font-size: 12px;
+}
+
 #App {
   display: block;
+}
+
+input,
+textarea {
+  border: none;
+  font-family: Courier;
+  resize: none;
+  padding: 0;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
 }
 
 .containers {
@@ -9,52 +26,79 @@
 
 #drawer {
   display: flex;
-  flex-basis: 150px;
-  min-width: 150px;
-  flex-grow: 0.5;
+  flex-direction: column;
+  flex-basis: 200px;
   height: 100%;
-  padding: 5px;
   box-sizing: border-box;
+  border-right: 0.5px solid gray;
+}
+
+#drawer-toolbar {
+  display: flex;
+}
+
+#drawer-toolbar button {
+  flex: 1;
 }
 
 #content {
   display: flex;
+  flex-direction: column;
   flex-basis: auto;
   flex-grow: 3;
   height: 100%;
-  padding: 5px;
   box-sizing: border-box;
 }
 
-#note-input-container {
+#note-text-container {
   display: flex;
-  flex-basis: 50%;
+  flex-direction: column;
   height: 100%;
-  padding: 5px;
   box-sizing: border-box;
 }
 
-#note-input {
-  flex: 1;
-  resize: none;
-  font-family: Courier;
+#note-title-input {
+  padding: 10px 0;
+  border-bottom: 0.5px solid gray;
 }
 
-#note-preview-container {
+#note-text-container {
   display: flex;
-  flex-basis: 50%;
+  flex-direction: row;
   height: 100%;
-  padding: 5px;
   box-sizing: border-box;
+}
+
+#note-text-input {
+  flex-basis: 50%;
+}
+
+#note-text-preview {
+  flex-basis: 50%;
+  border-left: 2px dashed gray;
+  word-break: break-all;
 }
 
 #note-list {
   list-style: none;
+  text-indent: 3px;
+  padding-inline-start: 0px;
+  margin: 0;
+  flex: 1;
+  overflow-y: scroll;
 }
 
 .note-list-item {
   cursor: pointer;
   user-select: none;
+  padding: 5px 0px 5px 5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.note-list-item:hover {
+  background-color: #ddd;
 }
 
 .note-list-item.selected {
