@@ -18,7 +18,7 @@ fun main(args: Array<String>) {
     runApplication<BestDocApplication>(*args)
 }
 
-class Note(
+data class Note(
     val id: NoteId?,
     val title: String,
     val text: String,
