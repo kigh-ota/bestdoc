@@ -19,6 +19,7 @@ const NEW_NOTE = {
 export function App() {
   const [editor, setEditor] = useState(NEW_NOTE);
   const [notes, setNotes] = useState({}); // {id: Note}
+  const [keyword, setKeyword] = useState("");
 
   const isChanged = () => {
     const base = editor.id === null ? NEW_NOTE : notes[editor.id];
@@ -52,7 +53,8 @@ export function App() {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        query: "{ allNotes { id, title, text, tags, createdAt, updatedAt } }",
+        query: `query AllNotes($keyword: String) { allNotes(keyword: $keyword) { id, title, text, tags, createdAt, updatedAt } }`,
+        variables: { keyword: keyword.trim() },
       }),
     })
       .then((r) => r.json())
@@ -60,7 +62,7 @@ export function App() {
         console.log("data returned:", data);
         setNotes(allNotesToObject(data.data.allNotes));
       });
-  }, []);
+  }, [keyword]);
 
   const updateTitle = (title) => setEditor({ ...editor, title });
   const updateText = (text) => setEditor({ ...editor, text });
@@ -138,6 +140,10 @@ export function App() {
               {editor.id === null ? "Add" : "Update"}
             </button>
           </div>
+          <SearchBox
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
           <NoteList
             notes={notes}
             selectedId={editor.id}
@@ -162,6 +168,18 @@ export function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function SearchBox({ value, onChange }) {
+  return (
+    <input
+      id="searchbox"
+      type="text"
+      value={value}
+      onChange={onChange}
+      placeholder="keyword"
+    />
   );
 }
 

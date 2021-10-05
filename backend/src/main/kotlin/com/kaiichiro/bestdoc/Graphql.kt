@@ -14,8 +14,13 @@ import java.time.temporal.ChronoField
 class NoteController(private val noteRepository: NoteRepository) {
 
     @QueryMapping
-    fun allNotes(): Iterable<GraphqlNote> {
-        return noteRepository.findAll().map(GraphqlNote::from)
+    fun allNotes(@Argument(required = false) keyword: String?): Iterable<GraphqlNote> {
+        val allNotes = noteRepository.findAll()
+        when (keyword) {
+            null -> return allNotes.map(GraphqlNote::from)
+            else -> return allNotes.filter { it.title.contains(keyword) || it.text.contains(keyword) }
+                .map(GraphqlNote::from)
+        }
     }
 
     @QueryMapping
@@ -29,7 +34,11 @@ class NoteController(private val noteRepository: NoteRepository) {
     }
 
     @MutationMapping
-    fun updateNote(@Argument id: NoteId, @Argument title: String, @Argument text: String): Note {
+    fun updateNote(
+        @Argument id: NoteId,
+        @Argument title: String,
+        @Argument text: String
+    ): Note {
         return noteRepository.save(Note.new(id, title, text, listOf()))
     }
 

@@ -43,6 +43,11 @@ textarea:focus {
   flex: 1;
 }
 
+#searchbox {
+  padding: 10px 0;
+  border-bottom: 0.5px solid gray;
+}
+
 #content {
   display: flex;
   flex-direction: column;
