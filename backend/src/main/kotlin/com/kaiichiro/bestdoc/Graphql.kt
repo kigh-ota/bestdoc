@@ -25,12 +25,12 @@ class NoteController(private val noteRepository: NoteRepository) {
 
     @MutationMapping
     fun addNote(@Argument title: String, @Argument text: String): Note {
-        return noteRepository.save(Note.new(null, title, text))
+        return noteRepository.save(Note.new(null, title, text, listOf()))
     }
 
     @MutationMapping
     fun updateNote(@Argument id: NoteId, @Argument title: String, @Argument text: String): Note {
-        return noteRepository.save(Note.new(id, title, text))
+        return noteRepository.save(Note.new(id, title, text, listOf()))
     }
 
     @MutationMapping
@@ -44,6 +44,7 @@ data class GraphqlNote(
     val id: NoteId,
     val title: String,
     val text: String,
+    val tags: List<String>,
     val createdAt: String,
     val updatedAt: String
 ) {
@@ -60,7 +61,7 @@ data class GraphqlNote(
             .toFormatter()
 
         fun from(note: Note) = GraphqlNote(
-            note.id!!, note.title, note.text,
+            note.id!!, note.title, note.text, note.tags,
             note.createdAt.format(DATE_TIME_FORMATTER),
             note.updatedAt.format(DATE_TIME_FORMATTER)
         )

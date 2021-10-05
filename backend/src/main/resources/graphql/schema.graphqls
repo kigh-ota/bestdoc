@@ -2,6 +2,7 @@ type Note {
     id: ID!
     title: String!
     text: String!
+    tags: [String!]!
     createdAt: String!
     updatedAt: String!
 }
