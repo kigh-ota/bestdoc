@@ -39,6 +39,7 @@ interface NoteRepository {
     fun findAll(): Iterable<Note>
     fun findById(id: NoteId): Note
     fun save(note: Note): Note
+    fun delete(id: NoteId)
 }
 
 @EnableWebSecurity

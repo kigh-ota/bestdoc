@@ -32,6 +32,12 @@ class NoteController(private val noteRepository: NoteRepository) {
     fun updateNote(@Argument id: NoteId, @Argument title: String, @Argument text: String): Note {
         return noteRepository.save(Note.new(id, title, text))
     }
+
+    @MutationMapping
+    fun deleteNote(@Argument id: NoteId): NoteId {
+        noteRepository.delete(id)
+        return id
+    }
 }
 
 data class GraphqlNote(

@@ -54,7 +54,7 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
     }
 
     override fun findAll(): Iterable<Note> {
-        val query = db.collection(COLLECTION).get()
+        val query = db.collection(COLLECTION).whereEqualTo("deleted", false).get()
         return query.get().documents.map(::docToNote)
     }
 
@@ -84,6 +84,12 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
         }
     }
 
+    override fun delete(id: NoteId) {
+        val docRef = db.collection(COLLECTION).document(id)
+        val future = docRef.update("deleted", true)
+        System.out.println("delete time : " + future.get().updateTime)
+    }
+
     private fun add(note: Note): Note {
         val result = db.collection(COLLECTION).add(
             mapOf(
@@ -91,6 +97,7 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
                 Pair("text", note.text),
                 Pair("createdAt", note.createdAt.format(DATE_TIME_FORMATTER)),
                 Pair("updatedAt", note.updatedAt.format(DATE_TIME_FORMATTER)),
+                Pair("deleted", false),
             )
         )
         val docRef = result.get()
