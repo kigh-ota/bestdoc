@@ -22,13 +22,14 @@ class Note(
     val id: NoteId?,
     val title: String,
     val text: String,
+    val tags: List<String>,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
 ) {
     companion object {
-        fun new(id: NoteId?, title: String, text: String): Note {
+        fun new(id: NoteId?, title: String, text: String, tags: List<String>): Note {
             val now = OffsetDateTime.now(ZoneOffset.UTC)
-            return Note(id, title, text, now, now)
+            return Note(id, title, text, tags, now, now)
         }
     }
 }

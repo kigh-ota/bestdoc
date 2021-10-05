@@ -72,6 +72,7 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
             doc.id,
             doc.get("title") as String,
             doc.get("text") as String,
+            doc.get("tags") as List<String>,
             OffsetDateTime.parse(doc.get("createdAt") as String, DATE_TIME_FORMATTER),
             OffsetDateTime.parse(doc.get("updatedAt") as String, DATE_TIME_FORMATTER)
         )
@@ -95,6 +96,7 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
             mapOf(
                 Pair("title", note.title),
                 Pair("text", note.text),
+                Pair("tags", note.tags),
                 Pair("createdAt", note.createdAt.format(DATE_TIME_FORMATTER)),
                 Pair("updatedAt", note.updatedAt.format(DATE_TIME_FORMATTER)),
                 Pair("deleted", false),

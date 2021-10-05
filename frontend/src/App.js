@@ -33,7 +33,7 @@ export function App() {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        query: `{ getNote(id:"${id}") { id, title, text, createdAt, updatedAt } }`,
+        query: `{ getNote(id:"${id}") { id, title, text, tags, createdAt, updatedAt } }`,
       }),
     })
       .then((r) => r.json())
@@ -52,7 +52,7 @@ export function App() {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        query: "{ allNotes { id, title, text, createdAt, updatedAt } }",
+        query: "{ allNotes { id, title, text, tags, createdAt, updatedAt } }",
       }),
     })
       .then((r) => r.json())
