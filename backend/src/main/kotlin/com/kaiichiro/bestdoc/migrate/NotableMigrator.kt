@@ -11,7 +11,6 @@ import java.nio.file.Path
 import java.time.OffsetDateTime
 import kotlin.io.path.extension
 
-// TODO tags
 fun main() {
     val firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder().setProjectId(
         ServiceOptions.getDefaultProjectId()
@@ -23,17 +22,22 @@ fun main() {
     val notableDirectory = Path.of(System.getenv("NOTABLE_NOTES_DIRECTORY"))
     Files.list(notableDirectory).filter { it.extension == "md" }
         .forEach {
-            val note = parseFile(it.toFile())
-            repository.save(note)
+            val (note, deleted) = parseFile(it.toFile())
+            val added = repository.save(note)
+            if (deleted) {
+                repository.delete(added.id!!)
+            }
         }
 }
 
-private fun parseFile(file: File): Note {
+private fun parseFile(file: File): Pair<Note, Boolean> {
     var headerCount = 0 // 3 means that beginning of the body reached
     var title: String? = null
-    var text: String = ""
+    var text = ""
+    var tags = listOf<String>()
     var createdAt: OffsetDateTime? = null
     var updatedAt: OffsetDateTime? = null
+    var deleted = false
     file.forEachLine {
         when (headerCount) {
             0 -> {
@@ -47,11 +51,13 @@ private fun parseFile(file: File): Note {
                     headerCount++
                     return@forEachLine
                 }
-                val (prop, value) = it.split(": ")
+                val (prop, value) = it.split(Regex(": "), 2)
                 when (prop) {
                     "title" -> title = value
+                    "tags" -> tags = value.trimStart('[').trimEnd(']').split(",").map { it.trim() }
                     "created" -> createdAt = OffsetDateTime.parse(value.trim('\''))
                     "modified" -> updatedAt = OffsetDateTime.parse(value.trim('\''))
+                    "deleted" -> deleted = value.toBoolean()
                     else -> {
                     }
                 }
@@ -68,5 +74,5 @@ private fun parseFile(file: File): Note {
     if (title == null || createdAt == null || updatedAt == null) {
         throw IllegalStateException()
     }
-    return Note(null, title!!, text, createdAt!!, updatedAt!!)
+    return Pair(Note(null, title!!, text, tags, createdAt!!, updatedAt!!), deleted)
 }
