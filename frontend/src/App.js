@@ -73,6 +73,7 @@ export function App() {
         <div id="drawer">
           <div id="drawer-toolbar">
             <button
+              disabled={editor.id === null && !isChanged}
               onClick={async () => {
                 await saveIfChangedAndUpdateState();
                 setEditor(NEW_NOTE);
@@ -81,6 +82,7 @@ export function App() {
               New
             </button>
             <button
+              disabled={!isChanged}
               onClick={async () => {
                 if (editor.id === null) {
                   // Add
