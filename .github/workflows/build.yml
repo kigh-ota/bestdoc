@@ -15,8 +15,8 @@ jobs:
         with:
           node-version: '14'
       - run: |
-          npm ci
-          npm run build
+          yarn install --frozen-lockfile
+          yarn build
         working-directory: ./frontend
 
   build-backend:
@@ -27,6 +27,5 @@ jobs:
         with:
           java-version: 11
       - run: |
-          ./mvnw spotlessCheck
-          ./mvnw package
+          ./gradlew spotlessCheck package
         working-directory: ./backend
