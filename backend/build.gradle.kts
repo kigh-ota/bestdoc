@@ -23,7 +23,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.experimental:graphql-spring-boot-starter:1.0.0-M2")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("com.google.cloud:google-cloud-firestore:1.32.0")
+    implementation("com.google.cloud:google-cloud-firestore:1.35.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
