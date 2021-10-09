@@ -27,5 +27,5 @@ jobs:
         with:
           java-version: 11
       - run: |
-          ./gradlew spotlessCheck package
+          ./gradlew build
         working-directory: ./backend
