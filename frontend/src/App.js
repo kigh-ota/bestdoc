@@ -1,114 +1,67 @@
 import "./App.css";
 import marked from "marked";
-import { useEffect, useState } from "react";
-
-function allNotesToObject(notes) {
-  const obj = {};
-  notes.forEach((note) => {
-    obj[note.id] = note;
-  });
-  return obj;
-}
+import { useCallback, useEffect, useState } from "react";
+import { getNoteList, getNote, addNote, updateNote } from "./Graphql";
 
 const NEW_NOTE = {
   id: null,
   title: "",
+  titleBefore: "",
   text: "",
+  textBefore: "",
 };
+
+// TODO Loading
 
 export function App() {
   const [editor, setEditor] = useState(NEW_NOTE);
-  const [notes, setNotes] = useState({}); // {id: Note}
+  const [noteList, setNoteList] = useState([]);
   const [keyword, setKeyword] = useState("");
 
-  const isChanged = () => {
-    const base = editor.id === null ? NEW_NOTE : notes[editor.id];
-    return editor.title !== base.title || editor.text !== base.text;
-  };
-
-  const getNoteAndUpdateState = (id) => {
-    return fetch("/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        query: `{ getNote(id:"${id}") { id, title, text, tags, createdAt, updatedAt } }`,
-      }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        console.log("data returned:", data);
-        const note = data.data.getNote;
-        setNotes({ ...notes, [note.id]: note });
-      });
-  };
+  const isChanged =
+    editor.title !== editor.titleBefore || editor.text !== editor.textBefore;
 
   useEffect(() => {
-    fetch("/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        query: `query AllNotes($keyword: String) { allNotes(keyword: $keyword) { id, title, text, tags, createdAt, updatedAt } }`,
-        variables: { keyword: keyword.trim() },
-      }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        console.log("data returned:", data);
-        setNotes(allNotesToObject(data.data.allNotes));
-      });
+    document.title = isChanged ? "bestdoc *" : "bestdoc";
+  }, [isChanged]);
+
+  const updateNoteList = useCallback(() => {
+    return getNoteList(keyword).then(setNoteList);
   }, [keyword]);
+
+  function loadEditor(id) {
+    return getNote(id).then((note) => {
+      setEditor({
+        id,
+        title: note.title,
+        titleBefore: note.title,
+        text: note.text,
+        textBefore: note.text,
+      });
+    });
+  }
+
+  useEffect(() => {
+    updateNoteList();
+  }, [keyword, updateNoteList]);
 
   const updateTitle = (title) => setEditor({ ...editor, title });
   const updateText = (text) => setEditor({ ...editor, text });
 
   const saveIfChangedAndUpdateState = async () => {
-    if (!isChanged()) {
+    if (!isChanged) {
       return Promise.resolve(NEW_NOTE);
     }
     if (editor.id === null) {
       // Add
-      return fetch("/graphql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          query: `mutation { addNote(title:"${editor.title}", text:"""${editor.text}""") { id, title, text, createdAt, updatedAt } }`,
-        }),
-      })
-        .then((r) => r.json())
-        .then((data) => {
-          console.log("data returned:", data);
-          const addedNote = data.data.addNote;
-          setNotes({ ...notes, [addedNote.id]: addedNote });
-          return addedNote;
-        });
+      return addNote(editor.title, editor.text).then(() => {
+        updateNoteList();
+      });
     } else {
       // Update
-      return fetch("/graphql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          query: `mutation { updateNote(id:"${editor.id}", title:"${editor.title}", text:"""${editor.text}""") { id, title, text, createdAt, updatedAt } }`,
-        }),
-      })
-        .then((r) => r.json())
-        .then((data) => {
-          console.log("data returned:", data);
-          const updatedNote = data.data.updateNote;
-          setNotes({ ...notes, [updatedNote.id]: updatedNote });
-          return updatedNote;
-        });
+      return updateNote(editor.id, editor.title, editor.text).then(() => {
+        updateNoteList();
+      });
     }
   };
 
@@ -134,6 +87,13 @@ export function App() {
                 } else {
                   // Update
                   saveIfChangedAndUpdateState();
+                  setEditor({
+                    id: editor.id,
+                    title: editor.title,
+                    titleBefore: editor.title,
+                    text: editor.text,
+                    textBefore: editor.text,
+                  });
                 }
               }}
             >
@@ -145,11 +105,11 @@ export function App() {
             onChange={(e) => setKeyword(e.target.value)}
           />
           <NoteList
-            notes={notes}
+            notes={noteList}
             selectedId={editor.id}
             onSelect={async (id) => {
               await saveIfChangedAndUpdateState();
-              setEditor(notes[id]);
+              loadEditor(id);
             }}
           />
         </div>
@@ -224,13 +184,13 @@ function NoteList({ notes, onSelect, selectedId }) {
           return 0;
         })
         .map((note) => (
-            <NoteListItem
-              key={note.id}
-              onSelect={() => onSelect(note.id)}
-              title={note.title || "(No title)"}
-              selected={note.id === selectedId}
-            />
-          ))}
+          <NoteListItem
+            key={note.id}
+            onSelect={() => onSelect(note.id)}
+            title={note.title || "(No title)"}
+            selected={note.id === selectedId}
+          />
+        ))}
     </ul>
   );
 }
