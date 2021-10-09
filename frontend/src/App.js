@@ -223,21 +223,23 @@ function NoteList({ notes, onSelect, selectedId }) {
           }
           return 0;
         })
-        .map((note) => {
-          const selected = note.id === selectedId;
-          const className = selected
-            ? "note-list-item selected"
-            : "note-list-item";
-          return (
-            <li
+        .map((note) => (
+            <NoteListItem
               key={note.id}
-              className={className}
-              onClick={(e) => onSelect(note.id)}
-            >
-              {note.title || "(No title)"}
-            </li>
-          );
-        })}
+              onSelect={() => onSelect(note.id)}
+              title={note.title || "(No title)"}
+              selected={note.id === selectedId}
+            />
+          ))}
     </ul>
+  );
+}
+
+function NoteListItem({ onSelect, title, selected }) {
+  const className = selected ? "note-list-item selected" : "note-list-item";
+  return (
+    <li className={className} title={title} onClick={onSelect}>
+      {title}
+    </li>
   );
 }

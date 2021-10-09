@@ -103,9 +103,9 @@ textarea:focus {
 }
 
 .note-list-item:hover {
-  background-color: #ddd;
+  background-color: #eee;
 }
 
 .note-list-item.selected {
-  background-color: blue;
+  background-color: #aaa;
 }
