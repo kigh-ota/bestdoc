@@ -5,6 +5,7 @@ import com.google.cloud.ServiceOptions
 import com.google.cloud.firestore.DocumentSnapshot
 import com.google.cloud.firestore.Firestore
 import com.google.cloud.firestore.FirestoreOptions
+import com.google.cloud.firestore.Query
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
@@ -89,6 +90,12 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
         val docRef = db.collection(COLLECTION).document(id)
         val future = docRef.update("deleted", true)
         System.out.println("delete time : " + future.get().updateTime)
+    }
+
+    override fun findUpdatedLaterThan(dt: OffsetDateTime): Iterable<Note> {
+        val query = db.collection(COLLECTION).orderBy("updatedAt", Query.Direction.DESCENDING)
+            .whereGreaterThan("updatedAt", dt.format(DATE_TIME_FORMATTER)).get()
+        return query.get().documents.map(::docToNote)
     }
 
     private fun add(note: Note): Note {

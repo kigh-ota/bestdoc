@@ -7,8 +7,11 @@ import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
 @SpringBootApplication
 class BestDocApplication
@@ -40,6 +43,57 @@ interface NoteRepository {
     fun findById(id: NoteId): Note
     fun save(note: Note): Note
     fun delete(id: NoteId)
+    fun findUpdatedLaterThan(dt: OffsetDateTime): Iterable<Note>
+}
+
+interface CachedNoteRepository {
+    fun findAll(): Iterable<Note>
+    fun findById(id: NoteId): Note
+    fun save(note: Note): Note
+    fun delete(id: NoteId)
+}
+
+// FIXME refine concurrency
+@Component
+class CachedNoteRepositoryImpl(private val noteRepository: NoteRepository) : CachedNoteRepository {
+    private val cache: ConcurrentMap<NoteId, Note> = ConcurrentHashMap()
+
+    private fun lastCachedUpdatedAt(): OffsetDateTime? {
+        return cache.maxOfOrNull { it.value.updatedAt }
+    }
+
+    private fun updateCache() {
+        val last = lastCachedUpdatedAt()
+        if (last == null) {
+            val allNotes = noteRepository.findAll()
+            cache.putAll(allNotes.associateBy { it.id })
+        } else {
+            val newNotes = noteRepository.findUpdatedLaterThan(last)
+            cache.putAll(newNotes.associateBy { it.id })
+        }
+    }
+
+    override fun findAll(): Iterable<Note> {
+        updateCache()
+        return cache.values
+    }
+
+    override fun findById(id: NoteId): Note {
+        updateCache()
+        return cache.get(id)!!
+    }
+
+    override fun save(note: Note): Note {
+        updateCache()
+        val saved = noteRepository.save(note)
+        cache.put(saved.id, saved)
+        return saved
+    }
+
+    override fun delete(id: NoteId) {
+        noteRepository.delete(id)
+        cache.remove(id)
+    }
 }
 
 @EnableWebSecurity

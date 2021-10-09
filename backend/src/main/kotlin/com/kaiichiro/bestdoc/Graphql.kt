@@ -11,7 +11,7 @@ import java.time.temporal.ChronoField
 
 @Controller
 @SchemaMapping(typeName = "Note")
-class NoteController(private val noteRepository: NoteRepository) {
+class NoteController(private val noteRepository: CachedNoteRepository) {
 
     @QueryMapping
     fun allNotes(@Argument(required = false) keyword: String?): Iterable<GraphqlNote> {
