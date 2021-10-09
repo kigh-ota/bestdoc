@@ -50,3 +50,10 @@ export function updateNote(id, title, text) {
     { id, title, text }
   ).then((data) => data.data.updateNote);
 }
+
+export function deleteNote(id) {
+  return callGraphql(
+    `mutation DeleteNote($id: ID!) { deleteNote(id: $id) }`,
+    { id }
+  ).then((data) => data.data.deleteNote);
+}

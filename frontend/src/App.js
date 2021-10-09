@@ -1,7 +1,7 @@
 import "./App.css";
 import marked from "marked";
 import { useCallback, useEffect, useState } from "react";
-import { getNoteList, getNote, addNote, updateNote } from "./Graphql";
+import { getNoteList, getNote, addNote, updateNote, deleteNote } from "./Graphql";
 
 const NEW_NOTE = {
   id: null,
@@ -108,6 +108,19 @@ export function App() {
               }}
             >
               {editor.id === null ? "Add" : "Update"}
+            </button>
+            <button
+              disabled={editor.id === null}
+              onClick={() => {
+                const title = noteList.find(note => note.id === editor.id).title
+                if (window.confirm(`Do you really want to delete the note "${title}"?`)) {
+                  deleteNote(editor.id)
+                  setNoteList(noteList.filter(note => note.id !== editor.id))
+                  setEditor(NEW_NOTE);
+                }
+              }}
+            >
+              Delete
             </button>
           </div>
           <SearchBox
