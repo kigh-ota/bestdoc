@@ -54,13 +54,15 @@ export function App() {
     }
     if (editor.id === null) {
       // Add
-      return addNote(editor.title, editor.text).then(() => {
+      return addNote(editor.title, editor.text).then(addedNote => {
         updateNoteList();
+        return addedNote;
       });
     } else {
       // Update
-      return updateNote(editor.id, editor.title, editor.text).then(() => {
+      return updateNote(editor.id, editor.title, editor.text).then(updatedNote => {
         updateNoteList();
+        return updatedNote;
       });
     }
   };
@@ -83,7 +85,13 @@ export function App() {
                 if (editor.id === null) {
                   // Add
                   const addedNote = await saveIfChangedAndUpdateState();
-                  setEditor(addedNote);
+                  setEditor({
+                    id: addedNote.id,
+                    title: addedNote.title,
+                    titleBefore: addedNote.title,
+                    text: addedNote.text,
+                    textBefore: addedNote.text,
+                  });
                 } else {
                   // Update
                   saveIfChangedAndUpdateState();
