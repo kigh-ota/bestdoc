@@ -47,6 +47,26 @@ export function App() {
     });
   }
 
+  function setNoteToEditor(note) {
+    setEditor({
+      id: note.id,
+      title: note.title,
+      titleBefore: note.title,
+      text: note.text,
+      textBefore: note.text,
+    });
+  }
+
+  function revertEditor() {
+    setEditor({
+      id: editor.id,
+      title: editor.titleBefore,
+      titleBefore: editor.titleBefore,
+      text: editor.textBefore,
+      textBefore: editor.textBefore,
+    });
+  }
+
   useEffect(() => {
     updateNoteList();
   }, [keyword, updateNoteList]);
@@ -95,23 +115,11 @@ export function App() {
                 if (editor.id === null) {
                   // Add
                   const addedNote = await saveIfChangedAndUpdateState();
-                  setEditor({
-                    id: addedNote.id,
-                    title: addedNote.title,
-                    titleBefore: addedNote.title,
-                    text: addedNote.text,
-                    textBefore: addedNote.text,
-                  });
+                  setNoteToEditor(addedNote)
                 } else {
                   // Update
                   saveIfChangedAndUpdateState();
-                  setEditor({
-                    id: editor.id,
-                    title: editor.title,
-                    titleBefore: editor.title,
-                    text: editor.text,
-                    textBefore: editor.text,
-                  });
+                  setNoteToEditor(editor)
                 }
               }}
             >
@@ -121,13 +129,7 @@ export function App() {
               disabled={!isChanged}
               onClick={() => {
                 if (window.confirm(`Do you really want to revert changes?`)) {
-                  setEditor({
-                    id: editor.id,
-                    title: editor.titleBefore,
-                    titleBefore: editor.titleBefore,
-                    text: editor.textBefore,
-                    textBefore: editor.textBefore,
-                  });
+                  revertEditor();
                 }
               }}
             >
