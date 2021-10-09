@@ -14,7 +14,7 @@ import java.time.temporal.ChronoField
 class NoteController(private val noteRepository: CachedNoteRepository) {
 
     @QueryMapping
-    fun allNotes(@Argument(required = false) keyword: String?): Iterable<GraphqlNote> {
+    fun allNotes(@Argument keyword: String?): Iterable<GraphqlNote> {
         val allNotes = noteRepository.findAll()
         when (keyword) {
             null -> return allNotes.map(GraphqlNote::from)
