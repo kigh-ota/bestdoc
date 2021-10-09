@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-
 @SpringBootApplication
 class BestDocApplication
 

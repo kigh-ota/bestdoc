@@ -6,6 +6,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.5.21"
     kotlin("plugin.spring") version "1.5.21"
+    id("com.diffplug.spotless") version "5.16.0"
 }
 
 group = "com.kaiichiro"
@@ -32,6 +33,12 @@ dependencies {
 
 springBoot {
     mainClass.set("com.kaiichiro.bestdoc.MainKt")
+}
+
+spotless {
+    kotlin {
+        ktlint()
+    }
 }
 
 tasks.withType<KotlinCompile> {

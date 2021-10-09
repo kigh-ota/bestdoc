@@ -20,9 +20,9 @@ import java.time.temporal.ChronoField
 class FirestoreConfiguration {
     @Bean
     fun firestore(): Firestore {
-        val path = Path.of(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"));
+        val path = Path.of(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
         Files.deleteIfExists(path)
-        Files.createFile(path);
+        Files.createFile(path)
         Files.writeString(
             path,
             System.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"),
