@@ -1,7 +1,13 @@
 import "./App.css";
 import marked from "marked";
 import { useCallback, useEffect, useState } from "react";
-import { getNoteList, getNote, addNote, updateNote, deleteNote } from "./Graphql";
+import {
+  getNoteList,
+  getNote,
+  addNote,
+  updateNote,
+  deleteNote,
+} from "./Graphql";
 
 const NEW_NOTE = {
   id: null,
@@ -54,16 +60,18 @@ export function App() {
     }
     if (editor.id === null) {
       // Add
-      return addNote(editor.title, editor.text).then(addedNote => {
+      return addNote(editor.title, editor.text).then((addedNote) => {
         updateNoteList();
         return addedNote;
       });
     } else {
       // Update
-      return updateNote(editor.id, editor.title, editor.text).then(updatedNote => {
-        updateNoteList();
-        return updatedNote;
-      });
+      return updateNote(editor.id, editor.title, editor.text).then(
+        (updatedNote) => {
+          updateNoteList();
+          return updatedNote;
+        }
+      );
     }
   };
 
@@ -79,7 +87,7 @@ export function App() {
                 setEditor(NEW_NOTE);
               }}
             >
-              New
+              ➕
             </button>
             <button
               disabled={!isChanged}
@@ -110,17 +118,39 @@ export function App() {
               {editor.id === null ? "Add" : "Update"}
             </button>
             <button
+              disabled={!isChanged}
+              onClick={() => {
+                if (window.confirm(`Do you really want to revert changes?`)) {
+                  setEditor({
+                    id: editor.id,
+                    title: editor.titleBefore,
+                    titleBefore: editor.titleBefore,
+                    text: editor.textBefore,
+                    textBefore: editor.textBefore,
+                  });
+                }
+              }}
+            >
+              ⏎
+            </button>
+            <button
               disabled={editor.id === null}
               onClick={() => {
-                const title = noteList.find(note => note.id === editor.id).title
-                if (window.confirm(`Do you really want to delete the note "${title}"?`)) {
-                  deleteNote(editor.id)
-                  setNoteList(noteList.filter(note => note.id !== editor.id))
+                const title = noteList.find(
+                  (note) => note.id === editor.id
+                ).title;
+                if (
+                  window.confirm(
+                    `Do you really want to delete the note "${title}"?`
+                  )
+                ) {
+                  deleteNote(editor.id);
+                  setNoteList(noteList.filter((note) => note.id !== editor.id));
                   setEditor(NEW_NOTE);
                 }
               }}
             >
-              Delete
+              🗑
             </button>
           </div>
           <SearchBox
