@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.experimental:graphql-spring-boot-starter:1.0.0-M2")
+    implementation("org.springframework.experimental:graphql-spring-boot-starter:1.0.0-SNAPSHOT")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("com.google.cloud:google-cloud-firestore:3.0.5")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
