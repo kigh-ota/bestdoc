@@ -21,6 +21,29 @@ const NEW_NOTE = {
 
 export function App() {
   const [editor, setEditor] = useState(NEW_NOTE);
+
+  const loadEditor = useCallback((id) => {
+    return getNote(id).then((note) => {
+      setEditor({
+        id,
+        title: note.title,
+        titleBefore: note.title,
+        text: note.text,
+        textBefore: note.text,
+      });
+    });
+  }, []);
+
+  const setNoteToEditor = useCallback((note) => {
+    setEditor({
+      id: note.id,
+      title: note.title,
+      titleBefore: note.title,
+      text: note.text,
+      textBefore: note.text,
+    });
+  }, []);
+
   const [noteList, setNoteList] = useState([]);
   const [keyword, setKeyword] = useState("");
 
@@ -65,7 +88,7 @@ export function App() {
       saveIfChangedAndUpdateState();
       setNoteToEditor(editor);
     }
-  }, [editor, isChanged, saveIfChangedAndUpdateState]);
+  }, [editor, isChanged, saveIfChangedAndUpdateState, setNoteToEditor]);
 
   const keydownListener = useCallback(
     (keydownEvent) => {
@@ -87,28 +110,6 @@ export function App() {
   useEffect(() => {
     document.title = isChanged ? "bestdoc *" : "bestdoc";
   }, [isChanged]);
-
-  const loadEditor = useCallback((id) => {
-    return getNote(id).then((note) => {
-      setEditor({
-        id,
-        title: note.title,
-        titleBefore: note.title,
-        text: note.text,
-        textBefore: note.text,
-      });
-    });
-  }, []);
-
-  const setNoteToEditor = useCallback((note) => {
-    setEditor({
-      id: note.id,
-      title: note.title,
-      titleBefore: note.title,
-      text: note.text,
-      textBefore: note.text,
-    });
-  }, []);
 
   const revertEditor = useCallback(() => {
     setEditor({
