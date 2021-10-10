@@ -88,7 +88,7 @@ export function App() {
     document.title = isChanged ? "bestdoc *" : "bestdoc";
   }, [isChanged]);
 
-  function loadEditor(id) {
+  const loadEditor = useCallback((id) => {
     return getNote(id).then((note) => {
       setEditor({
         id,
@@ -98,9 +98,9 @@ export function App() {
         textBefore: note.text,
       });
     });
-  }
+  }, []);
 
-  function setNoteToEditor(note) {
+  const setNoteToEditor = useCallback((note) => {
     setEditor({
       id: note.id,
       title: note.title,
@@ -108,9 +108,9 @@ export function App() {
       text: note.text,
       textBefore: note.text,
     });
-  }
+  }, []);
 
-  function revertEditor() {
+  const revertEditor = useCallback(() => {
     setEditor({
       id: editor.id,
       title: editor.titleBefore,
@@ -118,7 +118,7 @@ export function App() {
       text: editor.textBefore,
       textBefore: editor.textBefore,
     });
-  }
+  }, [editor.id, editor.titleBefore, editor.textBefore]);
 
   useEffect(() => {
     updateNoteList();
@@ -127,25 +127,25 @@ export function App() {
   const updateTitle = (title) => setEditor({ ...editor, title });
   const updateText = (text) => setEditor({ ...editor, text });
 
-  const handleNew = async () => {
+  const handleNew = useCallback(async () => {
     await saveIfChangedAndUpdateState();
     setEditor(NEW_NOTE);
-  };
+  }, [saveIfChangedAndUpdateState]);
 
-  const handleRevert = () => {
+  const handleRevert = useCallback(() => {
     if (window.confirm(`Do you really want to revert changes?`)) {
       revertEditor();
     }
-  };
+  }, [revertEditor]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     const title = noteList.find((note) => note.id === editor.id).title;
     if (window.confirm(`Do you really want to delete the note "${title}"?`)) {
       deleteNote(editor.id);
       setNoteList(noteList.filter((note) => note.id !== editor.id));
       setEditor(NEW_NOTE);
     }
-  };
+  }, [editor.id, noteList]);
 
   const NewButton = () => (
     <button disabled={editor.id === null && !isChanged} onClick={handleNew}>
