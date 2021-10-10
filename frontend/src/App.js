@@ -27,13 +27,66 @@ export function App() {
   const isChanged =
     editor.title !== editor.titleBefore || editor.text !== editor.textBefore;
 
-  useEffect(() => {
-    document.title = isChanged ? "bestdoc *" : "bestdoc";
-  }, [isChanged]);
-
   const updateNoteList = useCallback(() => {
     return getNoteList(keyword).then(setNoteList);
   }, [keyword]);
+
+  const saveIfChangedAndUpdateState = useCallback(async () => {
+    if (!isChanged) {
+      return Promise.resolve(NEW_NOTE);
+    }
+    if (editor.id === null) {
+      // Add
+      return addNote(editor.title, editor.text).then((addedNote) => {
+        updateNoteList();
+        return addedNote;
+      });
+    } else {
+      // Update
+      return updateNote(editor.id, editor.title, editor.text).then(
+        (updatedNote) => {
+          updateNoteList();
+          return updatedNote;
+        }
+      );
+    }
+  }, [editor.id, editor.title, editor.text, updateNoteList, isChanged]);
+
+  const handleSave = useCallback(async () => {
+    if (!isChanged) {
+      return;
+    }
+    if (editor.id === null) {
+      // Add
+      const addedNote = await saveIfChangedAndUpdateState();
+      setNoteToEditor(addedNote);
+    } else {
+      // Update
+      saveIfChangedAndUpdateState();
+      setNoteToEditor(editor);
+    }
+  }, [editor, isChanged, saveIfChangedAndUpdateState]);
+
+  const keydownListener = useCallback(
+    (keydownEvent) => {
+      const { key, repeat, ctrlKey, metaKey } = keydownEvent;
+      if (repeat) return;
+      if ((ctrlKey || metaKey) && key === "s") {
+        handleSave();
+        keydownEvent.preventDefault();
+      }
+    },
+    [handleSave]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", keydownListener, true);
+    return () => window.removeEventListener("keydown", keydownListener, true);
+  }, [keydownListener]);
+
+  useEffect(() => {
+    document.title = isChanged ? "bestdoc *" : "bestdoc";
+  }, [isChanged]);
 
   function loadEditor(id) {
     return getNote(id).then((note) => {
@@ -74,45 +127,9 @@ export function App() {
   const updateTitle = (title) => setEditor({ ...editor, title });
   const updateText = (text) => setEditor({ ...editor, text });
 
-  const saveIfChangedAndUpdateState = async () => {
-    if (!isChanged) {
-      return Promise.resolve(NEW_NOTE);
-    }
-    if (editor.id === null) {
-      // Add
-      return addNote(editor.title, editor.text).then((addedNote) => {
-        updateNoteList();
-        return addedNote;
-      });
-    } else {
-      // Update
-      return updateNote(editor.id, editor.title, editor.text).then(
-        (updatedNote) => {
-          updateNoteList();
-          return updatedNote;
-        }
-      );
-    }
-  };
-
   const handleNew = async () => {
     await saveIfChangedAndUpdateState();
     setEditor(NEW_NOTE);
-  };
-
-  const handleSave = async () => {
-    if (!isChanged) {
-      return;
-    }
-    if (editor.id === null) {
-      // Add
-      const addedNote = await saveIfChangedAndUpdateState();
-      setNoteToEditor(addedNote);
-    } else {
-      // Update
-      saveIfChangedAndUpdateState();
-      setNoteToEditor(editor);
-    }
   };
 
   const handleRevert = () => {
