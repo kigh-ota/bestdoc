@@ -1,5 +1,26 @@
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
 html {
   font-size: 12px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul {
+  margin: 0;
 }
 
 #App {
@@ -30,7 +51,6 @@ textarea:focus {
   min-width: 300px;
   max-width: 300px;
   height: 100%;
-  box-sizing: border-box;
   border-right: 0.5px solid gray;
 }
 
@@ -43,7 +63,7 @@ textarea:focus {
 }
 
 #searchbox {
-  padding: 10px 0;
+  padding: 10px 5px;
   border-bottom: 0.5px solid gray;
 }
 
@@ -53,36 +73,49 @@ textarea:focus {
   flex-basis: auto;
   flex-grow: 3;
   height: 100%;
-  box-sizing: border-box;
-}
-
-#note-text-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  box-sizing: border-box;
 }
 
 #note-title-input {
-  padding: 10px 0;
+  padding: 10px 5px;
+  min-height: 35px;
+  max-height: 35px;
   border-bottom: 0.5px solid gray;
 }
 
 #note-text-container {
   display: flex;
   flex-direction: row;
-  height: 100%;
-  box-sizing: border-box;
+  overflow: hidden;
+  flex: 1;
 }
 
 #note-text-input {
+  padding: 5px;
   flex-basis: 50%;
 }
 
 #note-text-preview {
   flex-basis: 50%;
+  font-size: 16px;
+  padding: 5px;
   border-left: 2px dashed gray;
   word-break: break-all;
+  overflow-y: scroll;
+}
+
+#note-text-preview code {
+  border: 1px solid lightgray;
+  border-radius: 3px;
+  padding: 2px;
+}
+
+#note-text-preview h1,
+#note-text-preview h2,
+#note-text-preview h3,
+#note-text-preview h4,
+#note-text-preview h5,
+#note-text-preview h6 {
+  margin: 1rem 0;
 }
 
 #note-list {
