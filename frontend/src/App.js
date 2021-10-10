@@ -95,65 +95,71 @@ export function App() {
     }
   };
 
+  const handleNew = async () => {
+    await saveIfChangedAndUpdateState();
+    setEditor(NEW_NOTE);
+  };
+
+  const handleSave = async () => {
+    if (!isChanged) {
+      return;
+    }
+    if (editor.id === null) {
+      // Add
+      const addedNote = await saveIfChangedAndUpdateState();
+      setNoteToEditor(addedNote);
+    } else {
+      // Update
+      saveIfChangedAndUpdateState();
+      setNoteToEditor(editor);
+    }
+  };
+
+  const handleRevert = () => {
+    if (window.confirm(`Do you really want to revert changes?`)) {
+      revertEditor();
+    }
+  };
+
+  const handleDelete = () => {
+    const title = noteList.find((note) => note.id === editor.id).title;
+    if (window.confirm(`Do you really want to delete the note "${title}"?`)) {
+      deleteNote(editor.id);
+      setNoteList(noteList.filter((note) => note.id !== editor.id));
+      setEditor(NEW_NOTE);
+    }
+  };
+
+  const NewButton = () => (
+    <button disabled={editor.id === null && !isChanged} onClick={handleNew}>
+      ➕
+    </button>
+  );
+  const SaveButton = () => (
+    <button disabled={!isChanged} onClick={handleSave}>
+      💾
+    </button>
+  );
+  const RevertButton = () => (
+    <button disabled={!isChanged} onClick={handleRevert}>
+      ⏎
+    </button>
+  );
+  const DeleteButton = () => (
+    <button disabled={editor.id === null} onClick={handleDelete}>
+      🗑
+    </button>
+  );
+
   return (
     <div id="App">
       <div className="containers">
         <div id="drawer">
           <div id="drawer-toolbar">
-            <button
-              disabled={editor.id === null && !isChanged}
-              onClick={async () => {
-                await saveIfChangedAndUpdateState();
-                setEditor(NEW_NOTE);
-              }}
-            >
-              ➕
-            </button>
-            <button
-              disabled={!isChanged}
-              onClick={async () => {
-                if (editor.id === null) {
-                  // Add
-                  const addedNote = await saveIfChangedAndUpdateState();
-                  setNoteToEditor(addedNote)
-                } else {
-                  // Update
-                  saveIfChangedAndUpdateState();
-                  setNoteToEditor(editor)
-                }
-              }}
-            >
-              {editor.id === null ? "Add" : "Update"}
-            </button>
-            <button
-              disabled={!isChanged}
-              onClick={() => {
-                if (window.confirm(`Do you really want to revert changes?`)) {
-                  revertEditor();
-                }
-              }}
-            >
-              ⏎
-            </button>
-            <button
-              disabled={editor.id === null}
-              onClick={() => {
-                const title = noteList.find(
-                  (note) => note.id === editor.id
-                ).title;
-                if (
-                  window.confirm(
-                    `Do you really want to delete the note "${title}"?`
-                  )
-                ) {
-                  deleteNote(editor.id);
-                  setNoteList(noteList.filter((note) => note.id !== editor.id));
-                  setEditor(NEW_NOTE);
-                }
-              }}
-            >
-              🗑
-            </button>
+            <NewButton />
+            <SaveButton />
+            <RevertButton />
+            <DeleteButton />
           </div>
           <SearchBox
             value={keyword}
