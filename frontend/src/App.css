@@ -30,7 +30,6 @@ ul {
 input,
 textarea {
   border: none;
-  font-family: Courier;
   resize: none;
   padding: 0;
 }
@@ -77,8 +76,10 @@ textarea:focus {
 
 #note-title-input {
   padding: 10px 5px;
-  min-height: 35px;
-  max-height: 35px;
+  font-size: 28px;
+  font-weight: bold;
+  min-height: 54px;
+  max-height: 54px;
   border-bottom: 0.5px solid gray;
 }
 
@@ -92,6 +93,7 @@ textarea:focus {
 #note-text-input {
   padding: 5px;
   flex-basis: 50%;
+  font-family: Courier;
 }
 
 #note-text-preview {
