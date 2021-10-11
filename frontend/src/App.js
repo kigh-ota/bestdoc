@@ -1,6 +1,6 @@
 import "./App.css";
 import marked from "marked";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getNoteList,
   getNote,
@@ -90,6 +90,14 @@ export function App() {
     }
   }, [editor, isChanged, saveIfChangedAndUpdateState, setNoteToEditor]);
 
+  const titleInputRef = useRef(null);
+
+  const handleNew = useCallback(async () => {
+    await saveIfChangedAndUpdateState();
+    setEditor(NEW_NOTE);
+    titleInputRef.current.focus();
+  }, [saveIfChangedAndUpdateState]);
+
   const keydownListener = useCallback(
     (keydownEvent) => {
       const { key, repeat, ctrlKey, metaKey } = keydownEvent;
@@ -97,9 +105,12 @@ export function App() {
       if ((ctrlKey || metaKey) && key === "s") {
         handleSave();
         keydownEvent.preventDefault();
+      } else if ((ctrlKey || metaKey) && key === "n") {
+        handleNew();
+        keydownEvent.preventDefault();
       }
     },
-    [handleSave]
+    [handleSave, handleNew]
   );
 
   useEffect(() => {
@@ -127,11 +138,6 @@ export function App() {
 
   const updateTitle = (title) => setEditor({ ...editor, title });
   const updateText = (text) => setEditor({ ...editor, text });
-
-  const handleNew = useCallback(async () => {
-    await saveIfChangedAndUpdateState();
-    setEditor(NEW_NOTE);
-  }, [saveIfChangedAndUpdateState]);
 
   const handleRevert = useCallback(() => {
     if (window.confirm(`Do you really want to revert changes?`)) {
@@ -196,6 +202,7 @@ export function App() {
           <TitleInput
             value={editor.title}
             onChange={(e) => updateTitle(e.target.value)}
+            titleInputRef={titleInputRef}
           />
           <div id="note-text-container">
             <TextInput
@@ -222,7 +229,7 @@ function SearchBox({ value, onChange }) {
   );
 }
 
-function TitleInput({ value, onChange }) {
+function TitleInput({ value, onChange, titleInputRef }) {
   return (
     <input
       id="note-title-input"
@@ -230,6 +237,7 @@ function TitleInput({ value, onChange }) {
       value={value}
       onChange={onChange}
       placeholder="Title"
+      ref={titleInputRef}
     />
   );
 }
