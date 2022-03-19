@@ -26,10 +26,10 @@ export function getNote(id) {
   });
 }
 
-export function getNoteList(keyword) {
+export function getNoteList(keyword, limit) {
   return callGraphql(
-    `query AllNotes($keyword: String) { allNotes(keyword: $keyword) { id, title, tags, createdAt, updatedAt } }`,
-    { keyword: keyword.trim() }
+    `query AllNotes($keyword: String, $limit: Int) { allNotes(keyword: $keyword, limit: $limit) { id, title, tags, createdAt, updatedAt } }`,
+    { keyword: keyword.trim(), limit }
   ).then((data) => {
     return data.data.allNotes;
   });

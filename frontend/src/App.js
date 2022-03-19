@@ -52,7 +52,8 @@ export function App() {
 
   const updateNoteList = useCallback(() => {
     setNoteList(null);
-    return getNoteList(keyword).then(setNoteList);
+    const limit = keyword === "" ? 30 : null;
+    return getNoteList(keyword, limit).then(setNoteList);
   }, [keyword]);
 
   const saveIfChangedAndUpdateState = useCallback(async () => {

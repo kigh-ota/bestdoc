@@ -18,16 +18,21 @@ class NoteController(private val noteRepository: CachedNoteRepository) {
     }
 
     @QueryMapping
-    fun allNotes(@Argument keyword: String?): Iterable<GraphqlNote> {
+    fun allNotes(@Argument keyword: String?, @Argument limit: Int?): Iterable<GraphqlNote> {
         val start = System.currentTimeMillis()
         val allNotes = noteRepository.findAll()
         return when (keyword) {
             null -> allNotes.map(GraphqlNote::from)
             else -> allNotes.filter { it.title.contains(keyword) || it.text.contains(keyword) }
                 .map(GraphqlNote::from)
+        }.let {
+            when (limit) {
+                null -> it
+                else -> it.subList(0, limit)
+            }
         }.also {
             val end = System.currentTimeMillis()
-            log.info("allNotes() took ${end - start} milliseconds (${it.size} notes)")
+            log.info("allNotes(keyword=${keyword},limit=${limit}) took ${end - start} milliseconds (${it.size} notes)")
         }
     }
 
