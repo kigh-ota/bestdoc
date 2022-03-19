@@ -32,7 +32,7 @@ class NoteController(private val noteRepository: CachedNoteRepository) {
             }
         }.also {
             val end = System.currentTimeMillis()
-            log.info("allNotes(keyword=${keyword},limit=${limit}) took ${end - start} milliseconds (${it.size} notes)")
+            log.info("allNotes(keyword=$keyword,limit=$limit) took ${end - start} milliseconds (${it.size} notes)")
         }
     }
 
