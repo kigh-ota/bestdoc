@@ -44,13 +44,14 @@ export function App() {
     });
   }, []);
 
-  const [noteList, setNoteList] = useState([]);
+  const [noteList, setNoteList] = useState(null);
   const [keyword, setKeyword] = useState("");
 
   const isChanged =
     editor.title !== editor.titleBefore || editor.text !== editor.textBefore;
 
   const updateNoteList = useCallback(() => {
+    setNoteList(null);
     return getNoteList(keyword).then(setNoteList);
   }, [keyword]);
 
@@ -258,6 +259,9 @@ function Preview({ text }) {
 }
 
 function NoteList({ notes, onSelect, selectedId }) {
+  if (notes === null) {
+    return <span>Loading...</span>;
+  }
   return (
     <ul id="note-list">
       {Object.values(notes)
