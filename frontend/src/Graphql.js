@@ -28,10 +28,10 @@ export function getNote(id) {
 
 export function getNoteList(keyword, limit) {
   return callGraphql(
-    `query AllNotes($keyword: String, $limit: Int) { allNotes(keyword: $keyword, limit: $limit) { id, title, tags, createdAt, updatedAt } }`,
+    `query AllNotesOrderByUpdatedAtDesc($keyword: String, $limit: Int) { allNotesOrderByUpdatedAtDesc(keyword: $keyword, limit: $limit) { id, title, tags, createdAt, updatedAt } }`,
     { keyword: keyword.trim(), limit }
   ).then((data) => {
-    return data.data.allNotes;
+    return data.data.allNotesOrderByUpdatedAtDesc;
   });
 }
 
@@ -52,8 +52,7 @@ export function updateNote(id, title, text) {
 }
 
 export function deleteNote(id) {
-  return callGraphql(
-    `mutation DeleteNote($id: ID!) { deleteNote(id: $id) }`,
-    { id }
-  ).then((data) => data.data.deleteNote);
+  return callGraphql(`mutation DeleteNote($id: ID!) { deleteNote(id: $id) }`, {
+    id,
+  }).then((data) => data.data.deleteNote);
 }

@@ -18,13 +18,13 @@ class NoteController(private val noteRepository: CachedNoteRepository) {
     }
 
     @QueryMapping
-    fun allNotes(@Argument keyword: String?, @Argument limit: Int?): Iterable<GraphqlNote> {
+    fun allNotesOrderByUpdatedAtDesc(@Argument keyword: String?, @Argument limit: Int?): Iterable<GraphqlNote> {
         val start = System.currentTimeMillis()
         val allNotes = noteRepository.findAll()
         return when (keyword) {
             null -> allNotes.map(GraphqlNote::from)
             else -> allNotes.filter { it.title.contains(keyword) || it.text.contains(keyword) }
-                .map(GraphqlNote::from)
+                .map(GraphqlNote::from).sortedByDescending { it.updatedAt }
         }.let {
             when (limit) {
                 null -> it

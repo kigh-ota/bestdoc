@@ -286,23 +286,14 @@ function NoteList({ notes, onSelect, selectedId }) {
   return (
     <ul id="note-list">
       {Object.values(notes)
-        .sort((a, b) => {
-          if (a.updatedAt < b.updatedAt) {
-            return 1;
-          }
-          if (a.updatedAt > b.updatedAt) {
-            return -1;
-          }
-          return 0;
-        })
-        .map((note) => (
-          <NoteListItem
-            key={note.id}
-            onSelect={() => onSelect(note.id)}
-            title={note.title || "(No title)"}
-            selected={note.id === selectedId}
-          />
-        ))}
+      .map((note) => (
+        <NoteListItem
+          key={note.id}
+          onSelect={() => onSelect(note.id)}
+          title={note.title || "(No title)"}
+          selected={note.id === selectedId}
+        />
+      ))}
     </ul>
   );
 }

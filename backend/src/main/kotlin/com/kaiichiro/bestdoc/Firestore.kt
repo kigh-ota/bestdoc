@@ -59,7 +59,8 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
     override fun findAll(): Iterable<Note> {
         val start = System.currentTimeMillis()
         val query = db.collection(COLLECTION).whereEqualTo("deleted", false).get()
-        return query.get().documents.map(::docToNote).also {
+        return query.get().documents.map(::docToNote)
+                .also {
             val end = System.currentTimeMillis()
             log.info("findAll() took ${end - start} milliseconds (${it.size} notes)")
         }
