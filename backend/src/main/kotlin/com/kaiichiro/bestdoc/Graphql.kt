@@ -1,5 +1,6 @@
 package com.kaiichiro.bestdoc
 
+import org.slf4j.LoggerFactory
 import org.springframework.graphql.data.method.annotation.Argument
 import org.springframework.graphql.data.method.annotation.MutationMapping
 import org.springframework.graphql.data.method.annotation.QueryMapping
@@ -12,14 +13,21 @@ import java.time.temporal.ChronoField
 @Controller
 @SchemaMapping(typeName = "Note")
 class NoteController(private val noteRepository: CachedNoteRepository) {
+    companion object {
+        private val log = LoggerFactory.getLogger(NoteController::class.java)
+    }
 
     @QueryMapping
     fun allNotes(@Argument keyword: String?): Iterable<GraphqlNote> {
+        val start = System.currentTimeMillis()
         val allNotes = noteRepository.findAll()
-        when (keyword) {
-            null -> return allNotes.map(GraphqlNote::from)
-            else -> return allNotes.filter { it.title.contains(keyword) || it.text.contains(keyword) }
+        return when (keyword) {
+            null -> allNotes.map(GraphqlNote::from)
+            else -> allNotes.filter { it.title.contains(keyword) || it.text.contains(keyword) }
                 .map(GraphqlNote::from)
+        }.also {
+            val end = System.currentTimeMillis()
+            log.info("allNotes() took ${end - start} milliseconds (${it.size} notes)")
         }
     }
 

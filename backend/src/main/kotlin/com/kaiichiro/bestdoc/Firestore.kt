@@ -6,6 +6,8 @@ import com.google.cloud.firestore.DocumentSnapshot
 import com.google.cloud.firestore.Firestore
 import com.google.cloud.firestore.FirestoreOptions
 import com.google.cloud.firestore.Query
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
@@ -18,7 +20,7 @@ import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoField
 
 @Configuration
-class FirestoreConfiguration {
+class FirestoreConfiguration() {
     @Bean
     fun firestore(): Firestore {
         val path = Path.of(System.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
@@ -52,11 +54,16 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
             .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
             .appendOffsetId()
             .toFormatter()
+        private val log = LoggerFactory.getLogger(FirestoreNoteRepository::class.java)
     }
 
     override fun findAll(): Iterable<Note> {
+        val start = System.currentTimeMillis()
         val query = db.collection(COLLECTION).whereEqualTo("deleted", false).get()
-        return query.get().documents.map(::docToNote)
+        return query.get().documents.map(::docToNote).also {
+            val end = System.currentTimeMillis()
+            log.info("findAll() took ${end - start} milliseconds (${it.size} notes)")
+        }
     }
 
     override fun findById(id: NoteId): Note {
