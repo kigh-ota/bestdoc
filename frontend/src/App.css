@@ -96,6 +96,10 @@ textarea:focus {
   font-family: Courier;
 }
 
+#note-text-input.changed {
+  background-color: lightyellow;
+}
+
 #note-text-preview {
   flex-basis: 50%;
   font-size: 16px;

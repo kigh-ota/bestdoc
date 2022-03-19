@@ -77,7 +77,7 @@ export function App() {
     }
   }, [editor.id, editor.title, editor.text, updateNoteList, isChanged]);
 
-  const handleSave = useCallback(async () => {
+  const save = useCallback(async () => {
     if (!isChanged) {
       return;
     }
@@ -92,6 +92,18 @@ export function App() {
     }
   }, [editor, isChanged, saveIfChangedAndUpdateState, setNoteToEditor]);
 
+  const handleWindowBlur = useCallback(() => {
+    console.log("blur");
+    save();
+  }, [save]);
+
+  useEffect(() => {
+    window.addEventListener("blur", handleWindowBlur);
+    return () => {
+      window.removeEventListener("blur", handleWindowBlur);
+    };
+  }, [handleWindowBlur]);
+
   const titleInputRef = useRef(null);
 
   const handleNew = useCallback(async () => {
@@ -105,14 +117,14 @@ export function App() {
       const { key, repeat, ctrlKey, metaKey } = keydownEvent;
       if (repeat) return;
       if ((ctrlKey || metaKey) && key === "s") {
-        handleSave();
+        save();
         keydownEvent.preventDefault();
       } else if ((ctrlKey || metaKey) && key === "n") {
         handleNew();
         keydownEvent.preventDefault();
       }
     },
-    [handleSave, handleNew]
+    [save, handleNew]
   );
 
   useEffect(() => {
@@ -162,7 +174,7 @@ export function App() {
     </button>
   );
   const SaveButton = () => (
-    <button disabled={!isChanged} onClick={handleSave}>
+    <button disabled={!isChanged} onClick={save}>
       💾
     </button>
   );
@@ -210,6 +222,7 @@ export function App() {
             <TextInput
               value={editor.text}
               onChange={(e) => updateText(e.target.value)}
+              isChanged={isChanged}
             />
             <Preview text={editor.text} />
           </div>
@@ -244,8 +257,15 @@ function TitleInput({ value, onChange, titleInputRef }) {
   );
 }
 
-function TextInput({ value, onChange }) {
-  return <textarea id="note-text-input" value={value} onChange={onChange} />;
+function TextInput({ value, onChange, isChanged }) {
+  return (
+    <textarea
+      id="note-text-input"
+      className={isChanged ? "changed" : ""}
+      value={value}
+      onChange={onChange}
+    />
+  );
 }
 
 function Preview({ text }) {
