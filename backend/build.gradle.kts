@@ -6,7 +6,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
-    id("com.diffplug.spotless") version "5.17.0"
+    id("com.diffplug.spotless") version "6.3.0"
 }
 
 group = "com.kaiichiro"
