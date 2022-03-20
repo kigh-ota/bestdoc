@@ -93,7 +93,7 @@ textarea:focus {
 #note-text-input {
   padding: 5px;
   flex-basis: 100%;
-  font-family: Courier;
+  font-family: "Menlo", "Courier", monospace;
 }
 
 #note-text-input.changed {
