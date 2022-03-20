@@ -126,3 +126,20 @@ textarea:focus {
 .note-list-item.selected {
   background-color: #aaa;
 }
+
+#saved-message {
+  position: fixed;
+  box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.3);
+  padding: 18px;
+  text-align: center;
+  vertical-align: middle;
+  height: 50px;
+  width: 100vw;
+  background-color: #333;
+  font-size: 14px;
+  color: #ccc;
+  left: 50%;
+  transform: translate(-50%, 0);
+  bottom: 0px;
+  user-select: none;
+}

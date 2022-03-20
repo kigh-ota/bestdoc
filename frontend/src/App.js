@@ -21,6 +21,7 @@ const NEW_NOTE = {
 export function App() {
   const [editor, setEditor] = useState(NEW_NOTE);
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const [openSavedMessage, setOpenSavedMessage] = useState(false);
 
   const loadEditor = useCallback((id) => {
     return getNote(id).then((note) => {
@@ -63,6 +64,7 @@ export function App() {
     if (editor.id === null) {
       // Add
       return addNote(editor.title, editor.text).then((addedNote) => {
+        setOpenSavedMessage(true);
         updateNoteList();
         return addedNote;
       });
@@ -70,6 +72,7 @@ export function App() {
       // Update
       return updateNote(editor.id, editor.title, editor.text).then(
         (updatedNote) => {
+          setOpenSavedMessage(true);
           updateNoteList();
           return updatedNote;
         }
@@ -236,8 +239,21 @@ export function App() {
           </div>
         </div>
       </div>
+      <SavedMessage
+        open={openSavedMessage}
+        onClose={() => setOpenSavedMessage(false)}
+      />
     </div>
   );
+}
+
+function SavedMessage({ open, onClose }) {
+  useEffect(() => {
+    if (open) {
+      setTimeout(onClose, 3000);
+    }
+  }, [open, onClose]);
+  return open ? <div id="saved-message">Saved!</div> : null;
 }
 
 function SearchBox({ value, onChange }) {
