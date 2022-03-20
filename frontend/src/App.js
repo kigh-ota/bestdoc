@@ -20,6 +20,7 @@ const NEW_NOTE = {
 
 export function App() {
   const [editor, setEditor] = useState(NEW_NOTE);
+  const [drawerOpen, setDrawerOpen] = useState(true);
 
   const loadEditor = useCallback((id) => {
     return getNote(id).then((note) => {
@@ -167,6 +168,9 @@ export function App() {
     }
   }, [editor.id, noteList]);
 
+  const DrawerToggleButton = () => (
+    <button onClick={() => setDrawerOpen(!drawerOpen)}>≡</button>
+  );
   const NewButton = () => (
     <button disabled={editor.id === null && !isChanged} onClick={handleNew}>
       ➕
@@ -191,32 +195,38 @@ export function App() {
   return (
     <div id="App">
       <div className="containers">
-        <div id="drawer">
-          <div id="drawer-toolbar">
-            <NewButton />
-            <SaveButton />
-            <RevertButton />
-            <DeleteButton />
+        {drawerOpen && (
+          <div id="drawer">
+            <div id="drawer-toolbar">
+              <DrawerToggleButton />
+              <NewButton />
+              <SaveButton />
+              <RevertButton />
+              <DeleteButton />
+            </div>
+            <SearchBox
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+            <NoteList
+              notes={noteList}
+              selectedId={editor.id}
+              onSelect={async (id) => {
+                await saveIfChangedAndUpdateState();
+                loadEditor(id);
+              }}
+            />
           </div>
-          <SearchBox
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-          />
-          <NoteList
-            notes={noteList}
-            selectedId={editor.id}
-            onSelect={async (id) => {
-              await saveIfChangedAndUpdateState();
-              loadEditor(id);
-            }}
-          />
-        </div>
+        )}
         <div id="content">
-          <TitleInput
-            value={editor.title}
-            onChange={(e) => updateTitle(e.target.value)}
-            titleInputRef={titleInputRef}
-          />
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            {!drawerOpen && <DrawerToggleButton />}
+            <TitleInput
+              value={editor.title}
+              onChange={(e) => updateTitle(e.target.value)}
+              titleInputRef={titleInputRef}
+            />
+          </div>
           <div id="note-text-container">
             <TextInput
               value={editor.text}

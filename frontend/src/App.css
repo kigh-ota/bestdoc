@@ -81,6 +81,7 @@ textarea:focus {
   min-height: 54px;
   max-height: 54px;
   border-bottom: 0.5px solid gray;
+  width: 100%;
 }
 
 #note-text-container {
