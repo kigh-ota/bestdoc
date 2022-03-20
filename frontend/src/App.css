@@ -92,36 +92,12 @@ textarea:focus {
 
 #note-text-input {
   padding: 5px;
-  flex-basis: 50%;
+  flex-basis: 100%;
   font-family: Courier;
 }
 
 #note-text-input.changed {
   background-color: lightyellow;
-}
-
-#note-text-preview {
-  flex-basis: 50%;
-  font-size: 16px;
-  padding: 5px;
-  border-left: 2px dashed gray;
-  word-break: break-all;
-  overflow-y: scroll;
-}
-
-#note-text-preview code {
-  border: 1px solid lightgray;
-  border-radius: 3px;
-  padding: 2px;
-}
-
-#note-text-preview h1,
-#note-text-preview h2,
-#note-text-preview h3,
-#note-text-preview h4,
-#note-text-preview h5,
-#note-text-preview h6 {
-  margin: 1rem 0;
 }
 
 #note-list {

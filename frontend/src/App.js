@@ -1,5 +1,4 @@
 import "./App.css";
-import marked from "marked";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getNoteList,
@@ -224,7 +223,6 @@ export function App() {
               onChange={(e) => updateText(e.target.value)}
               isChanged={isChanged}
             />
-            <Preview text={editor.text} />
           </div>
         </div>
       </div>
@@ -268,25 +266,13 @@ function TextInput({ value, onChange, isChanged }) {
   );
 }
 
-function Preview({ text }) {
-  return (
-    <div
-      id="note-text-preview"
-      dangerouslySetInnerHTML={{
-        __html: marked(text),
-      }}
-    ></div>
-  );
-}
-
 function NoteList({ notes, onSelect, selectedId }) {
   if (notes === null) {
     return <span>Loading...</span>;
   }
   return (
     <ul id="note-list">
-      {Object.values(notes)
-      .map((note) => (
+      {Object.values(notes).map((note) => (
         <NoteListItem
           key={note.id}
           onSelect={() => onSelect(note.id)}
