@@ -101,6 +101,7 @@ class FirestoreNoteRepository(private val db: Firestore) : NoteRepository {
 
     override fun findUpdatedLaterThan(dt: OffsetDateTime): Iterable<Note> {
         val query = db.collection(COLLECTION).orderBy("updatedAt", Query.Direction.DESCENDING)
+            .whereEqualTo("deleted", false)
             .whereGreaterThan("updatedAt", dt.format(DATE_TIME_FORMATTER)).get()
         return query.get().documents.map(::docToNote)
     }

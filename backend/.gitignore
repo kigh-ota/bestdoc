@@ -1,4 +1,5 @@
 /src/main/resources/static/
+/.idea/
 
 # Compiled class file
 *.class
