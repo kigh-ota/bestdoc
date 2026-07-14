@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("plugin.jpa") version "1.5.31"
+    kotlin("plugin.jpa") version "1.9.25"
     id("org.springframework.boot") version "2.7.0-M2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
-    kotlin("jvm") version "1.6.10"
-    kotlin("plugin.spring") version "1.6.10"
+    kotlin("jvm") version "1.9.25"
+    kotlin("plugin.spring") version "1.9.25"
     id("com.diffplug.spotless") version "6.3.0"
 }
 
